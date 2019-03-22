@@ -19,6 +19,22 @@ def start(update, context):
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
+emotions={1:{1:"serenity",2:"joy",3:"ecstasy"},
+            2:{1:"pensiveness",2:"sadness",3:"grief"},
+            3:{1:"acceptance",2:"trust",3:"admiration"},
+            4:{1:"boredom",2:"disgust",3:"loathing"},
+            5:{1:"apprehension",2:"fear",3:"terror"},
+            6:{1:"annoyance",2:"anger",3:"rage"},
+            7:{1:"distraction",2:"surprise",3:"amazement"},
+            8:{1:"interest",2:"anticipation",3:"vigilance"}}
+
+def list(update, context):
+    context.bot.send_message(chat_id=update.message.chat_id, text=str(emotions))
+    
+list_handler = CommandHandler('list', list)
+dispatcher.add_handler(list_handler)
+
+
 responsetext1 = """Thank you for your input. Among the 8 emotions below, which response would you expect? Please key in a number. Alternatively, you may use /list command to find out the full list of emotions.
 1. Joy
 2. Sadness
@@ -30,21 +46,33 @@ responsetext1 = """Thank you for your input. Among the 8 emotions below, which r
 8. Anticipation
 """
 
-responsetext2 = """From a scale of 1-3, 3 being the most severe, how would you rate the intensity of the emotion?"""
+global response1
+response1 = 1
 
 responsetext3 = """Thank you for your input!""" 
 
 def trigger(update, context):
     global count
+    global response1
     if (count%3==1):
         context.bot.send_message(chat_id=update.message.chat_id, text=responsetext1)
         sheet.update_cell((count//3)+1, 1, update.message.text)
     elif (count%3==2):
+        response1 = int(update.message.text)
+        
+        responsetext2 = ("""From a scale of 1-3, 3 being the most severe, how would you rate the intensity of the emotion?
+1. %s
+2. %s
+3. %s
+""" % (emotions[response1][1],emotions[response1][2],emotions[response1][3]))
+        
         context.bot.send_message(chat_id=update.message.chat_id, text=responsetext2)
         sheet.update_cell((count//3)+1, 2, update.message.text)
     else:
+        response2 = int(update.message.text)
         context.bot.send_message(chat_id=update.message.chat_id, text=responsetext3)
         sheet.update_cell((count//3), 3, update.message.text)
+        sheet.update_cell((count//3), 4, emotions[response1][response2])
     count+=1
 
 trigger_handler = MessageHandler(Filters.all,trigger)
