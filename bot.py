@@ -7,16 +7,16 @@ from oauth2client.service_account import ServiceAccountCredentials
 import config
 
 global rowCount
-rowCount = 11
+rowCount = 15
 updater = Updater(token=config.Token, use_context=True)
 dispatcher = updater.dispatcher
-
+    
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 def start(update, context):
     context.bot.send_message(chat_id=update.message.chat_id, text="""Hi, I am a data collection bot for ValteRego. 
 Please key in your training statement in the following format:
-    [text],[emotion number from 1-8],[intensity number from 1-3]
+    [text] *space* [emotion number from 1-8] *space* [intensity number from 1-3]
 To view the full list of emotions and the corresponding intensity, please use '/list'.
 To view the picture of Plutchik's wheel of emotion, please use '/pic'.
 To see an example of text input, please use '/eg'.
@@ -37,7 +37,8 @@ emotions={1:{1:"serenity",2:"joy",3:"ecstasy"},
 #emotions={1:"serenity",2:"joy",3:"ecstasy",4:"pensiveness",5:"sadness",6:"grief",7:"acceptance",8:"trust",9:"admiration",10:"boredom",11:"disgust",12:"loathing",13:"apprehension",14:"fear",15:"terror",16:"annoyance",17:"anger",18:"rage",19:"distraction",20:"surprise",21:"amazement",22:"interest",23:"anticipation",24:"vigilance"}
 
 def list(update, context):
-    context.bot.send_message(chat_id=update.message.chat_id, text=str(emotions))
+    for item, amount in emotions.items():
+        context.bot.send_message(chat_id=update.message.chat_id, text="{} ({})".format(item, amount))
     
 list_handler = CommandHandler('list', list)
 dispatcher.add_handler(list_handler)
@@ -50,9 +51,13 @@ pic_handler = CommandHandler('pic', pic)
 dispatcher.add_handler(pic_handler)
 
 def eg(update, context):
-    context.bot.send_message(chat_id=update.message.chat_id, text="""Example statement:
-    Hi Valte, do you want some investment?,1,3
-Mapped emotion will be emotion 1 with intensity 3: ecstasy.""")
+    context.bot.send_message(chat_id=update.message.chat_id, text="""Example statement 1:
+    Hi Valte, do you want some investment? 1 3
+Mapped emotion will be emotion 1 with intensity 3: ecstasy.
+
+Example statement 2:
+    Samson 3 3
+Mapped emotion will be emotion 3 with intensity 3: admiration.""")
     
 eg_handler = CommandHandler('eg', eg)
 dispatcher.add_handler(eg_handler)
